@@ -122,7 +122,7 @@ CREATE TABLE form_submissions (
   changeset_id UUID,
   
   -- Complete structured record as JSONB
-  record_data JSONB NOT NULL,
+  form_values JSONB NOT NULL,
   
   -- Database metadata
   created_at_db TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,

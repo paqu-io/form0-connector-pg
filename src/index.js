@@ -1,6 +1,7 @@
 /**
  * PostgreSQL Connector for form0
  * Implements the standard form0 connector interface
+ * Supports both main records and child records with proper relationships
  */
 
 import { PostgreSQLDatabase } from './database.js';
@@ -39,7 +40,7 @@ export class Form0PostgreSQLConnector {
         maxConnections: parseInt(env.FORM0_PG_MAX_CONNECTIONS) || 10,
         idleTimeout: parseInt(env.FORM0_PG_IDLE_TIMEOUT) || 30000,
         connectionTimeout: parseInt(env.FORM0_PG_CONNECTION_TIMEOUT) || 5000,
-        tableName: env.FORM0_PG_TABLE_NAME || 'form_submissions',
+        tableName: env.FORM0_PG_TABLE_NAME || 'form0_submissions',
         schema: env.FORM0_PG_SCHEMA || 'public',
         debug: env.FORM0_PG_DEBUG === 'true',
         ...config // Allow config to override environment variables
@@ -60,7 +61,7 @@ export class Form0PostgreSQLConnector {
       this.db = new PostgreSQLDatabase(this.config);
       await this.db.connect();
 
-      // Ensure table exists with proper schema
+      // Ensure tables exist with proper schema
       await createSchema(this.db, this.config);
 
       this.isInitialized = true;
@@ -75,6 +76,7 @@ export class Form0PostgreSQLConnector {
 
   /**
    * Handle form submission - called by form0-cli when a form is submitted
+   * Supports both main records and nested child records from RepeatableSections
    * @param {Object} structuredRecord - The structured record from record-transformer.js
    * @returns {Promise<Object>} Result object with success/error information
    */
@@ -99,16 +101,93 @@ export class Form0PostgreSQLConnector {
         created_at_server: structuredRecord.created_at_server || serverTimestamp
       };
 
-      const result = await this.db.insertRecord(recordWithServerTimestamps);
+      // Insert main record first
+      const mainResult = await this.db.insertRecord(recordWithServerTimestamps);
       
       if (this.config.debug) {
-        console.log('[form0-connector-pg] Record inserted successfully:', result.id);
+        console.log('[form0-connector-pg] Main record inserted successfully:', mainResult.recordId);
       }
+
+      // Process child records from RepeatableSections
+      const childResults = [];
+      const processedChildRecords = [];
+
+      // Recursive function to process RepeatableSections at any nesting level
+      const processRepeatableSections = async (formValues, mainRecordId, parentRecordId, sectionPath = '') => {
+        const results = [];
+        
+        for (const [key, value] of Object.entries(formValues)) {
+          if (Array.isArray(value) && value.length > 0 && value[0].id) {
+            // This is a RepeatableSection with child records
+            const childRecords = value;
+            const currentSectionPath = sectionPath ? `${sectionPath}.${key}` : key;
+            
+            if (this.config.debug) {
+              console.log(`[form0-connector-pg] Processing RepeatableSection "${currentSectionPath}" with ${childRecords.length} child records`);
+            }
+
+            // Process each child record in this RepeatableSection
+            for (let i = 0; i < childRecords.length; i++) {
+              const childRecord = childRecords[i];
+              
+              // Set server timestamps for child record
+              const childWithServerTimestamps = {
+                ...childRecord,
+                updated_at: serverTimestamp,
+                updated_at_server: serverTimestamp,
+                created_at_server: childRecord.created_at_server || serverTimestamp
+              };
+
+              // Insert child record with proper relationships
+              const childResult = await this.db.insertRecord(childWithServerTimestamps, {
+                isChildRecord: true,
+                mainRecordId: mainRecordId,
+                parentRecordId: parentRecordId
+              });
+
+              results.push({
+                sectionKey: currentSectionPath,
+                childIndex: i,
+                childRecordId: childResult.childRecordId,
+                parentRecordId: parentRecordId
+              });
+
+              if (this.config.debug) {
+                console.log(`[form0-connector-pg] Child record ${i + 1} inserted:`, childResult.childRecordId);
+              }
+
+              // Recursively process nested RepeatableSections within this child record
+              if (childWithServerTimestamps.form_values) {
+                const nestedResults = await processRepeatableSections(
+                  childWithServerTimestamps.form_values,
+                  mainRecordId,
+                  childResult.childRecordId, // This child becomes the parent for nested records
+                  currentSectionPath
+                );
+                results.push(...nestedResults);
+              }
+            }
+          }
+        }
+        
+        return results;
+      };
+
+      // Process all RepeatableSections starting from the main record
+      const allChildResults = await processRepeatableSections(
+        recordWithServerTimestamps.form_values,
+        mainResult.recordId,
+        mainResult.recordId // For top-level RepeatableSections, parent is main record
+      );
+
+      childResults.push(...allChildResults);
+      processedChildRecords.push(...allChildResults);
 
       return {
         success: true,
-        id: result.id,
-        message: 'Record stored successfully in PostgreSQL',
+        recordId: mainResult.recordId,
+        childRecords: processedChildRecords,
+        message: `Record stored successfully in PostgreSQL (main + ${childResults.length} child records)`,
         timestamp: serverTimestamp,
         serverTimestamps: {
           created_at_server: recordWithServerTimestamps.created_at_server,

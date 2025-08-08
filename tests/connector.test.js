@@ -131,7 +131,7 @@ describe('Form0PostgreSQLConnector Integration', () => {
       
       const result = await connector.onFormSubmit(testRecord);
       assert.strictEqual(result.success, true);
-      assert.ok(result.id);
+      assert.ok(result.recordId);
       assert.ok(result.timestamp);
       
     } finally {
