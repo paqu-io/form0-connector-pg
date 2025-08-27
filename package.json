@@ -1,0 +1,40 @@
+{
+  "name": "form0-connector-pg",
+  "version": "0.0.1-alpha.1",
+  "description": "PostgreSQL connector for form0 - enables automatic form submission storage in PostgreSQL databases",
+  "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "node --test",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,json,md}\""
+  },
+  "keywords": [
+    "form0",
+    "postgresql",
+    "connector",
+    "forms",
+    "database"
+  ],
+  "author": "Your Name",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "pg": "^8.12.0",
+    "dotenv": "^16.4.5",
+    "form0-core": "file:../form0-core"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/form0-connector-pg.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/form0-connector-pg/issues"
+  },
+  "homepage": "https://github.com/yourusername/form0-connector-pg#readme"
+}
