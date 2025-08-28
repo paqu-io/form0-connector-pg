@@ -1,13 +1,13 @@
 # Release Testing Log
 
-Use this document to record testing notes, procedures, and any issues encountered during the release process.
+This document is for tracking testing notes, procedures, and any issues found during the release process.
 
-## How to Use
+## Usage Instructions
 
-- For each release, create a new section with the release version and date.
+- For each release, add a new section with the release version and date.
 - List the testing steps performed, observations, and results.
 - Note any bugs, regressions, or unexpected behaviors.
-- Mark each test as "Passed" or "Failed" and include any relevant screenshots or logs if needed.
+- Mark each test as "Passed" or "Failed". Attach screenshots or logs if helpful.
 
 ---
 
@@ -16,17 +16,17 @@ Use this document to record testing notes, procedures, and any issues encountere
 ### Release v1.2.3 (2024-06-10)
 
 **Testing Steps:**
-- [x] Verified database migrations apply cleanly
-- [x] Ran integration tests (`npm run test:integration`)
-- [x] Checked connection to staging PostgreSQL instance
-- [ ] Manually tested rollback on migration failure
+- [x] Database migrations apply cleanly
+- [x] Integration tests run (`npm run test:integration`)
+- [x] Connection to staging PostgreSQL instance verified
+- [ ] Manual rollback on migration failure
 
 **Observations:**
-- All automated tests passed.
-- Manual rollback test failed due to missing permissions (see issue #45).
+- Automated tests: Passed
+- Manual rollback: Failed due to missing permissions (see issue #45)
 
 **Results:**
-- Release is blocked until rollback permissions are fixed.
+- Release blocked until rollback permissions are fixed
 
 ---
 
