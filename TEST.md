@@ -10,3 +10,5 @@ This is a test markdown file to check how release note GitHub automation works.
 - Please do not remove this file unless automation tests are no longer needed.
 - If you see this file in a release, it is safe to ignore.
 - Thank you for helping test the release note automation!
+- [Test] Minor change: this line was added for additional testing.
+- [Test] Another minor change for workflow verification.
