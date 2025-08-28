@@ -49,6 +49,7 @@ jobs:
             
             let commits = [];
             let filesChanged = [];
+            let truncatedDiff = ''; // Declare outside try block
             
             try {
               const commitOutput = execSync(`git log ${range} --pretty=format:"- %s (%h) by %an" --reverse`).toString().trim();
@@ -62,7 +63,7 @@ jobs:
               
               // Truncate diff if too long (to avoid hitting GitHub issue size limits)
               const maxDiffLength = 8000; // GitHub issues have ~65k char limit, leave room for other content
-              const truncatedDiff = diffOutput.length > maxDiffLength 
+              truncatedDiff = diffOutput.length > maxDiffLength 
                 ? diffOutput.substring(0, maxDiffLength) + '\n\n... (diff truncated for brevity) ...'
                 : diffOutput;
                 
@@ -71,6 +72,7 @@ jobs:
               console.log('Error getting git data:', error.message);
               commits = ['- Release preparation'];
               filesChanged = [];
+              truncatedDiff = 'Unable to generate diff - please check commits manually';
             }
             
             const issueBody = `@claude Please generate professional release notes for version **${currentTag}**.
