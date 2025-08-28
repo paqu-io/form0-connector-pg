@@ -1,0 +1,1 @@
+This is a test markdown file to check how release note GitHub automation works.
