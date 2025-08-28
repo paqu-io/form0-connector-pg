@@ -1,6 +1,6 @@
 {
   "name": "form0-connector-pg",
-  "version": "0.0.1-alpha.8",
+  "version": "0.0.1-alpha.9",
   "description": "PostgreSQL connector for form0 - enables automatic form submission storage in PostgreSQL databases",
   "type": "module",
   "main": "src/index.js",
