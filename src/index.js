@@ -242,7 +242,7 @@ export class Form0PostgreSQLConnector {
   getMetadata() {
     return {
       name: 'form0-connector-pg',
-      version: '0.0.1-alpha.1',
+      version: '0.0.1-alpha.14',
       description: 'PostgreSQL connector for form0',
       type: 'database',
       database: 'postgresql',
