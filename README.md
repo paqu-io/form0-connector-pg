@@ -2,8 +2,6 @@
 
 PostgreSQL connector for [form0](https://github.com/yourusername/form0) - enables automatic form submission storage in PostgreSQL databases.
 
-Short addition to check how GitHub Action automation for releases works.
-
 ## Overview
 
 `form0-connector-pg` is a database connector that integrates with the form0 ecosystem to automatically store form submissions in PostgreSQL databases. It implements a hybrid storage approach, extracting common fields into dedicated columns for fast querying while preserving the complete form data as JSONB.
