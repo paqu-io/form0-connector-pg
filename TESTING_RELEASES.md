@@ -1,6 +1,6 @@
 # Release Testing Log
 
-This document is for tracking testing notes, procedures, and any issues found during the release process.
+This document tracks testing notes, procedures, and any issues found during the release process.
 
 ## Usage Instructions
 
@@ -26,7 +26,7 @@ This document is for tracking testing notes, procedures, and any issues found du
 - Manual rollback: Failed due to missing permissions (see issue #45)
 
 **Results:**
-- Release blocked until rollback permissions are fixed
+- Release blocked until rollback permissions are fixed.
 
 ---
 
