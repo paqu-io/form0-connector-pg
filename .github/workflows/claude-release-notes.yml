@@ -122,7 +122,8 @@ jobs:
             10. **If there are breaking changes, highlight them prominently**
             11. **Keep descriptions accurate and concise**
             12. **For small changes, use simple language like "Minor documentation update" rather than elaborate descriptions**
-
+            13. **Please DO NOT a summary at the end of the release notes.**
+            
             Please generate the release notes in your response. Thanks! 🚀`;
 
             const { data: issue } = await github.rest.issues.create({
