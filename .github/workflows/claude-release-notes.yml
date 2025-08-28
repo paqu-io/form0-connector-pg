@@ -119,7 +119,7 @@ jobs:
 
             8. **Item format template:**
                Each change should follow this exact format:
-               \`- **Short Title**: Brief description ([commit](link))\`
+               \\\`- **Short Title**: Brief description ([commit](link))\\\`
                
                **Examples:**
                - **User Authentication**: Added OAuth2 support for Google and GitHub login ([abc1234](https://github.com/user/repo/commit/abc1234))
@@ -144,7 +144,7 @@ jobs:
 
             13. **Keep descriptions accurate and concise**
             14. **For small changes, use simple language like "Minor documentation update" rather than elaborate descriptions**
-            15. **Technical terms:** Use user-friendly language but keep key technical terms in backticks (e.g., `API`, `config`, `schema`)
+            15. **Technical terms:** Use user-friendly language but keep key technical terms in backticks (e.g., \\`API\\`, \\`config\\`, \\`schema\\`)
             16. **Please DO NOT add a summary at the end of the release notes.**
             
             Please generate the release notes in your response. Thanks! 🚀`;
