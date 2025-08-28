@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   prepare-release:
@@ -38,7 +39,7 @@ jobs:
         id: create-issue
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.CLAUDE_RELEASE_ACCESS_TOKEN }}  # ← Use CLAUDE_RELEASE_ACCESS_TOKEN instead of GITHUB_TOKEN
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const { execSync } = require('child_process');
             
@@ -49,7 +50,6 @@ jobs:
             
             let commits = [];
             let filesChanged = [];
-            let truncatedDiff = ''; // Declare outside try block
             
             try {
               const commitOutput = execSync(`git log ${range} --pretty=format:"- %s (%h) by %an" --reverse`).toString().trim();
@@ -57,25 +57,14 @@ jobs:
               
               const filesOutput = execSync(`git diff --name-only ${range} 2>/dev/null || echo ""`).toString().trim();
               filesChanged = filesOutput.split('\n').filter(line => line.trim()).slice(0, 15);
-              
-              // Get actual diff content for better context
-              const diffOutput = execSync(`git diff ${range} --unified=3 2>/dev/null || echo ""`).toString().trim();
-              
-              // Truncate diff if too long (to avoid hitting GitHub issue size limits)
-              const maxDiffLength = 8000; // GitHub issues have ~65k char limit, leave room for other content
-              truncatedDiff = diffOutput.length > maxDiffLength 
-                ? diffOutput.substring(0, maxDiffLength) + '\n\n... (diff truncated for brevity) ...'
-                : diffOutput;
-                
-              console.log(`Diff length: ${diffOutput.length} characters`);
             } catch (error) {
               console.log('Error getting git data:', error.message);
               commits = ['- Release preparation'];
               filesChanged = [];
-              truncatedDiff = 'Unable to generate diff - please check commits manually';
             }
             
-            const issueBody = `@claude Please generate professional release notes for version **${currentTag}**.
+            // First create issue without @claude to test
+            const issueBody = `**🤖 Release Notes Request for ${currentTag}**
 
             ## Release Information
             - **Previous version:** ${prevTag}
@@ -93,38 +82,27 @@ jobs:
             ${filesChanged.join('\n')}
             \`\`\`` : ''}
 
-            ## Actual Code Changes
-            **IMPORTANT: Base your descriptions on the actual changes shown below, not assumptions.**
-            
-            \`\`\`diff
-            ${truncatedDiff || 'No diff available - check individual commits'}
-            \`\`\`
-
             ## Instructions for Release Notes
-            **CRITICAL: Only describe what actually changed based on the diff above. Do not invent or assume details.**
-            
-            1. **Review the actual diff content** before writing descriptions
-            2. **Transform technical commit messages into user-friendly descriptions** 
-            3. **Base descriptions on ACTUAL changes shown in the diff**, not commit message assumptions
-            4. **If a change is minor (like adding a single line), describe it as minor**
-            5. **Don't elaborate beyond what the diff actually shows**
-            6. **Group related changes logically**
-            7. **Use these emoji categories:**
+            1. **Transform technical commits into user-friendly descriptions**
+            2. **Focus on user benefits and impact**, not implementation details
+            3. **Group related changes logically**
+            4. **Use these emoji categories:**
                - 🚀 **New Features** - New functionality users can access
                - 🐛 **Bug Fixes** - Issues that have been resolved
                - ⚡ **Performance** - Speed and efficiency improvements
                - 📚 **Documentation** - Updated guides, docs, examples
-               - 🔧 **Maintenance** - Dependencies, internal improvements, version bumps
+               - 🔧 **Maintenance** - Dependencies, internal improvements
                - 💥 **Breaking Changes** - Changes that might break existing usage
 
-            8. **Include commit links** in format: ([abc1234](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/FULL_HASH))
-            9. **Start with "## What's Changed"**
-            10. **If there are breaking changes, highlight them prominently**
-            11. **Keep descriptions accurate and concise**
-            12. **For small changes, use simple language like "Minor documentation update" rather than elaborate descriptions**
-            13. **Please DO NOT a summary at the end of the release notes.**
+            5. **Include commit links** in format: ([abc1234](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/FULL_HASH))
+            6. **Start with "## What's Changed"**
+            7. **If there are breaking changes, highlight them prominently**
+            8. **Keep descriptions concise but informative**
+            9. **Focus on what users can now do or what problems are solved**
+
+            ---
             
-            Please generate the release notes in your response. Thanks! 🚀`;
+            **Status:** Ready for Claude to process ⏳`;
 
             const { data: issue } = await github.rest.issues.create({
               owner: context.repo.owner,
@@ -134,14 +112,24 @@ jobs:
               labels: ['release-notes', 'claude-task']
             });
 
-            console.log(`✅ Created issue for Claude: ${issue.html_url}`);
+            console.log(`✅ Created issue: ${issue.html_url}`);
+
+            // Now add a comment with @claude to trigger the action
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: `@claude Please generate professional release notes based on the information above. Thanks! 🚀`
+            });
+
+            console.log(`✅ Added @claude trigger comment`);
             core.setOutput('issue-url', issue.html_url);
             core.setOutput('issue-number', issue.number);
 
       - name: Create draft release
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}  # Can use GITHUB_TOKEN for release creation
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const tag = process.env.CURRENT_TAG;
             const prevTag = process.env.PREV_TAG || 'initial';
@@ -150,7 +138,7 @@ jobs:
             
             const placeholderBody = `## 🤖 AI-Generated Release Notes
 
-            **Status:** ⏳ Claude should automatically respond in the issue below.
+            **Status:** ⏳ Claude is generating professional release notes for this release.
 
             **Instructions:**
             1. ✅ Claude will respond in this issue: ${issueUrl}
@@ -182,4 +170,8 @@ jobs:
             });
 
             console.log(`✅ Created draft release: ${release.html_url}`);
-            console.log(`📝 Claude should respond automatically in: ${issueUrl}`);
+            console.log(`📝 Next steps:`);
+            console.log(`   1. Claude should respond automatically in: ${issueUrl}`);
+            console.log(`   2. Copy Claude's response`);
+            console.log(`   3. Edit the draft release: ${release.html_url}`);
+            console.log(`   4. Publish when ready!`);
