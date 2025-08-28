@@ -29,8 +29,10 @@ jobs:
           
           if [ -z "$PREV_TAG" ]; then
             RANGE="$TAG"
+            echo "This is the first release"
           else
             RANGE="$PREV_TAG..$TAG"
+            echo "Comparing $PREV_TAG to $TAG"
           fi
           
           echo "COMMIT_RANGE=$RANGE" >> $GITHUB_ENV
@@ -63,8 +65,7 @@ jobs:
               filesChanged = [];
             }
             
-            // First create issue without @claude to test
-            const issueBody = `**🤖 Release Notes Request for ${currentTag}**
+            const issueBody = `@claude Please generate professional release notes for version **${currentTag}**.
 
             ## Release Information
             - **Previous version:** ${prevTag}
@@ -100,9 +101,9 @@ jobs:
             8. **Keep descriptions concise but informative**
             9. **Focus on what users can now do or what problems are solved**
 
-            ---
-            
-            **Status:** Ready for Claude to process ⏳`;
+            Please generate the release notes in your response. Once you reply, I'll copy your response to update the draft release that's being created.
+
+            Thanks! 🚀`;
 
             const { data: issue } = await github.rest.issues.create({
               owner: context.repo.owner,
@@ -112,17 +113,7 @@ jobs:
               labels: ['release-notes', 'claude-task']
             });
 
-            console.log(`✅ Created issue: ${issue.html_url}`);
-
-            // Now add a comment with @claude to trigger the action
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issue.number,
-              body: `@claude Please generate professional release notes based on the information above. Thanks! 🚀`
-            });
-
-            console.log(`✅ Added @claude trigger comment`);
+            console.log(`✅ Created issue for Claude: ${issue.html_url}`);
             core.setOutput('issue-url', issue.html_url);
             core.setOutput('issue-number', issue.number);
 
@@ -171,7 +162,7 @@ jobs:
 
             console.log(`✅ Created draft release: ${release.html_url}`);
             console.log(`📝 Next steps:`);
-            console.log(`   1. Claude should respond automatically in: ${issueUrl}`);
+            console.log(`   1. Wait for Claude to respond in: ${issueUrl}`);
             console.log(`   2. Copy Claude's response`);
             console.log(`   3. Edit the draft release: ${release.html_url}`);
             console.log(`   4. Publish when ready!`);
