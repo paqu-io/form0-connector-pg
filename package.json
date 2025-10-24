@@ -20,7 +20,7 @@
     "database"
   ],
   "author": "Your Name",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "dependencies": {
     "pg": "^8.12.0",
     "dotenv": "^16.4.5",
