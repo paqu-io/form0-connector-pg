@@ -129,13 +129,13 @@ export class Form0PostgreSQLConnector {
             // Process each child record in this RepeatableSection
             for (let i = 0; i < childRecords.length; i++) {
               const childRecord = childRecords[i];
-              
-              // Set server timestamps for child record
+
+              const childTimestamp = new Date().toISOString();
               const childWithServerTimestamps = {
                 ...childRecord,
-                updated_at: serverTimestamp,
-                updated_at_server: serverTimestamp,
-                created_at_server: childRecord.created_at_server || serverTimestamp
+                updated_at: childTimestamp,
+                updated_at_server: childRecord.updated_at_server || serverTimestamp,
+                created_at_server: childRecord.created_at_server || serverTimestamp,
               };
 
               // Insert child record with proper relationships
@@ -242,7 +242,7 @@ export class Form0PostgreSQLConnector {
   getMetadata() {
     return {
       name: 'form0-connector-pg',
-      version: '0.0.1-alpha.1',
+      version: '0.0.1-alpha.15',
       description: 'PostgreSQL connector for form0',
       type: 'database',
       database: 'postgresql',

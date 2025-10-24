@@ -109,20 +109,43 @@ jobs:
             4. **If a change is minor (like adding a single line), describe it as minor**
             5. **Don't elaborate beyond what the diff actually shows**
             6. **Group related changes logically**
-            7. **Use these emoji categories:**
+            7. **Use these emoji categories in this order:**
+               - 💥 **Breaking Changes** - Changes that might break existing usage (always list first if present)
                - 🚀 **New Features** - New functionality users can access
                - 🐛 **Bug Fixes** - Issues that have been resolved
                - ⚡ **Performance** - Speed and efficiency improvements
                - 📚 **Documentation** - Updated guides, docs, examples
                - 🔧 **Maintenance** - Dependencies, internal improvements, version bumps
-               - 💥 **Breaking Changes** - Changes that might break existing usage
 
-            8. **Include commit links** in format: ([abc1234](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/FULL_HASH))
-            9. **Start with "## What's Changed"**
-            10. **If there are breaking changes, highlight them prominently**
-            11. **Keep descriptions accurate and concise**
-            12. **For small changes, use simple language like "Minor documentation update" rather than elaborate descriptions**
-            13. **Please DO NOT a summary at the end of the release notes.**
+            8. **Item format template:**
+               Each change should follow this exact format:
+               - **Short Title**: Brief description ([commit](link))
+               
+               **Examples:**
+               - **User Authentication**: Added OAuth2 support for Google and GitHub login ([abc1234](https://github.com/user/repo/commit/abc1234))
+               - **Database Schema**: Fixed migration issue causing duplicate entries ([def5678](https://github.com/user/repo/commit/def5678))
+               - **API Performance**: Improved response times by 40% through query optimization ([ghi9012](https://github.com/user/repo/commit/ghi9012))
+               - **Dependencies**: Updated React from v17 to v18 ([jkl3456](https://github.com/user/repo/commit/jkl3456))
+
+            9. **Formatting consistency rules:**
+               - Use past tense for all descriptions (e.g., Added feature X, Fixed issue with Y)
+               - No periods at the end of bullet points
+               - Start each item with a capital letter
+               - Keep descriptions 1-2 lines maximum
+               - Use active voice where possible (e.g., Improved performance not Performance was improved)
+               - Bold title should be 2-4 words max, descriptive but concise
+
+            10. **Include commit links** in format: ([abc1234](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/FULL_HASH))
+            11. **Start with "## What's Changed"**
+            12. **Breaking changes formatting:**
+                - Always list breaking changes first with 💥 emoji
+                - Use bold text for the breaking change description
+                - Include migration notes if the diff shows how to adapt
+
+            13. **Keep descriptions accurate and concise**
+            14. **For small changes, use simple language like Minor documentation update rather than elaborate descriptions**
+            15. **Technical terms:** Use user-friendly language but keep key technical terms in backticks when needed
+            16. **Please DO NOT add a summary at the end of the release notes.**
             
             Please generate the release notes in your response. Thanks! 🚀`;
 
