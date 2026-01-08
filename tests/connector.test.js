@@ -32,7 +32,11 @@ test('destroy without initialization is a no-op', async () => {
 
 // Integration-oriented tests require a live PostgreSQL instance. Skip by default.
 test.skip('initializes and stores a record with a live PostgreSQL database', async (t) => {
-  if (!process.env.FORM0_PG_DATABASE || !process.env.FORM0_PG_USERNAME || !process.env.FORM0_PG_PASSWORD) {
+  if (
+    !process.env.FORM0_CONNECTOR_PG_DATABASE ||
+    !process.env.FORM0_CONNECTOR_PG_USERNAME ||
+    !process.env.FORM0_CONNECTOR_PG_PASSWORD
+  ) {
     t.skip('Database configuration not available');
     return;
   }

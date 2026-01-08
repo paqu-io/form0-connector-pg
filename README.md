@@ -25,20 +25,20 @@ npm install form0-connector-pg
 
 ### 1. Environment Setup
 
-Create a `.env` file (copy from `env.example`):
+Create a `.env.local` file (copy from `env.example`):
 
 ```bash
 # PostgreSQL Connection
-FORM0_PG_HOST=localhost
-FORM0_PG_PORT=5432
-FORM0_PG_DATABASE=your_database
-FORM0_PG_USERNAME=your_username
-FORM0_PG_PASSWORD=your_password
+FORM0_CONNECTOR_PG_HOST=localhost
+FORM0_CONNECTOR_PG_PORT=5432
+FORM0_CONNECTOR_PG_DATABASE=your_database
+FORM0_CONNECTOR_PG_USERNAME=your_username
+FORM0_CONNECTOR_PG_PASSWORD=your_password
 
 # Optional Configuration
-FORM0_PG_TABLE_NAME=form_submissions
-FORM0_PG_SCHEMA=public
-FORM0_PG_DEBUG=true
+FORM0_CONNECTOR_PG_TABLE_NAME=form_submissions
+FORM0_CONNECTOR_PG_SCHEMA=public
+FORM0_CONNECTOR_PG_DEBUG=true
 ```
 
 ### 2. Basic Usage
@@ -80,19 +80,19 @@ form0 configure
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `FORM0_PG_HOST` | No | `localhost` | PostgreSQL host |
-| `FORM0_PG_PORT` | No | `5432` | PostgreSQL port |
-| `FORM0_PG_DATABASE` | **Yes** | - | Database name |
-| `FORM0_PG_USERNAME` | **Yes** | - | Database username |
-| `FORM0_PG_PASSWORD` | **Yes** | - | Database password |
-| `FORM0_PG_SSL` | No | `false` | Enable SSL connection |
-| `FORM0_PG_SSL_REJECT_UNAUTHORIZED` | No | `true` | SSL certificate validation |
-| `FORM0_PG_MAX_CONNECTIONS` | No | `10` | Connection pool size |
-| `FORM0_PG_IDLE_TIMEOUT` | No | `30000` | Connection idle timeout (ms) |
-| `FORM0_PG_CONNECTION_TIMEOUT` | No | `5000` | Connection timeout (ms) |
-| `FORM0_PG_TABLE_NAME` | No | `form_submissions` | Table name for submissions |
-| `FORM0_PG_SCHEMA` | No | `public` | Database schema |
-| `FORM0_PG_DEBUG` | No | `false` | Enable debug logging |
+| `FORM0_CONNECTOR_PG_HOST` | No | `localhost` | PostgreSQL host |
+| `FORM0_CONNECTOR_PG_PORT` | No | `5432` | PostgreSQL port |
+| `FORM0_CONNECTOR_PG_DATABASE` | **Yes** | - | Database name |
+| `FORM0_CONNECTOR_PG_USERNAME` | **Yes** | - | Database username |
+| `FORM0_CONNECTOR_PG_PASSWORD` | **Yes** | - | Database password |
+| `FORM0_CONNECTOR_PG_SSL` | No | `false` | Enable SSL connection |
+| `FORM0_CONNECTOR_PG_SSL_REJECT_UNAUTHORIZED` | No | `true` | SSL certificate validation |
+| `FORM0_CONNECTOR_PG_MAX_CONNECTIONS` | No | `10` | Connection pool size |
+| `FORM0_CONNECTOR_PG_IDLE_TIMEOUT` | No | `30000` | Connection idle timeout (ms) |
+| `FORM0_CONNECTOR_PG_CONNECTION_TIMEOUT` | No | `5000` | Connection timeout (ms) |
+| `FORM0_CONNECTOR_PG_TABLE_NAME` | No | `form_submissions` | Table name for submissions |
+| `FORM0_CONNECTOR_PG_SCHEMA` | No | `public` | Database schema |
+| `FORM0_CONNECTOR_PG_DEBUG` | No | `false` | Enable debug logging |
 
 ## Database Schema
 
@@ -182,7 +182,7 @@ See the [`examples/`](./examples/) directory for complete usage examples:
 npm test
 
 # Run with database (requires database configuration)
-FORM0_PG_DATABASE=test_db FORM0_PG_USERNAME=user FORM0_PG_PASSWORD=pass npm test
+FORM0_CONNECTOR_PG_DATABASE=test_db FORM0_CONNECTOR_PG_USERNAME=user FORM0_CONNECTOR_PG_PASSWORD=pass npm test
 ```
 
 ## Development

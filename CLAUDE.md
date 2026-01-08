@@ -58,7 +58,7 @@ This is a PostgreSQL connector for the form0 ecosystem that stores form submissi
 
 - **RepeatableSection Support**: Automatically processes nested child records from form RepeatableSections, maintaining proper parent-child relationships
 - **Relationship Tracking**: Child records reference both main record ID and immediate parent record ID for flexible querying
-- **Environment-based Configuration**: All database credentials and settings via FORM0_PG_* environment variables
+- **Environment-based Configuration**: All database credentials and settings via FORM0_CONNECTOR_PG_* environment variables
 - **Timestamp Management**: Preserves client timestamps while adding server timestamps for audit trail
 
 ### Dependencies
@@ -78,6 +78,6 @@ The `examples/basic-usage.js` file demonstrates complete usage including complex
 ### Database Configuration
 
 Required environment variables for database connection:
-- `FORM0_PG_DATABASE`, `FORM0_PG_USERNAME`, `FORM0_PG_PASSWORD`
+- `FORM0_CONNECTOR_PG_DATABASE`, `FORM0_CONNECTOR_PG_USERNAME`, `FORM0_CONNECTOR_PG_PASSWORD`
 
 Optional configuration includes connection pooling, SSL, schema settings, and debug mode. See README.md for complete list.

@@ -4,13 +4,14 @@
  * Supports both main records and child records with proper relationships
  */
 
+import path from 'path';
 import { PostgreSQLDatabase } from './database.js';
 import { createSchema } from './schema.js';
 import { recordVersion } from 'form0-core';
 import dotenv from 'dotenv';
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 export class Form0PostgreSQLConnector {
   constructor() {
@@ -30,31 +31,31 @@ export class Form0PostgreSQLConnector {
       const env = { ...process.env, ...envVars };
       
       this.config = {
-        host: env.FORM0_PG_HOST || 'localhost',
-        port: parseInt(env.FORM0_PG_PORT) || 5432,
-        database: env.FORM0_PG_DATABASE,
-        username: env.FORM0_PG_USERNAME,
-        password: env.FORM0_PG_PASSWORD,
-        ssl: env.FORM0_PG_SSL === 'true',
-        sslRejectUnauthorized: env.FORM0_PG_SSL_REJECT_UNAUTHORIZED !== 'false',
-        maxConnections: parseInt(env.FORM0_PG_MAX_CONNECTIONS) || 10,
-        idleTimeout: parseInt(env.FORM0_PG_IDLE_TIMEOUT) || 30000,
-        connectionTimeout: parseInt(env.FORM0_PG_CONNECTION_TIMEOUT) || 5000,
-        tableName: env.FORM0_PG_TABLE_NAME || 'form0_submissions',
-        schema: env.FORM0_PG_SCHEMA || 'public',
-        debug: env.FORM0_PG_DEBUG === 'true',
+        host: env.FORM0_CONNECTOR_PG_HOST || 'localhost',
+        port: parseInt(env.FORM0_CONNECTOR_PG_PORT) || 5432,
+        database: env.FORM0_CONNECTOR_PG_DATABASE,
+        username: env.FORM0_CONNECTOR_PG_USERNAME,
+        password: env.FORM0_CONNECTOR_PG_PASSWORD,
+        ssl: env.FORM0_CONNECTOR_PG_SSL === 'true',
+        sslRejectUnauthorized: env.FORM0_CONNECTOR_PG_SSL_REJECT_UNAUTHORIZED !== 'false',
+        maxConnections: parseInt(env.FORM0_CONNECTOR_PG_MAX_CONNECTIONS) || 10,
+        idleTimeout: parseInt(env.FORM0_CONNECTOR_PG_IDLE_TIMEOUT) || 30000,
+        connectionTimeout: parseInt(env.FORM0_CONNECTOR_PG_CONNECTION_TIMEOUT) || 5000,
+        tableName: env.FORM0_CONNECTOR_PG_TABLE_NAME || 'form0_submissions',
+        schema: env.FORM0_CONNECTOR_PG_SCHEMA || 'public',
+        debug: env.FORM0_CONNECTOR_PG_DEBUG === 'true',
         ...config // Allow config to override environment variables
       };
 
       // Validate required configuration
       if (!this.config.database) {
-        throw new Error('FORM0_PG_DATABASE environment variable is required');
+        throw new Error('FORM0_CONNECTOR_PG_DATABASE environment variable is required');
       }
       if (!this.config.username) {
-        throw new Error('FORM0_PG_USERNAME environment variable is required');
+        throw new Error('FORM0_CONNECTOR_PG_USERNAME environment variable is required');
       }
       if (!this.config.password) {
-        throw new Error('FORM0_PG_PASSWORD environment variable is required');
+        throw new Error('FORM0_CONNECTOR_PG_PASSWORD environment variable is required');
       }
 
       // Initialize database connection
