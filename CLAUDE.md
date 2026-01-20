@@ -63,7 +63,7 @@ This is a PostgreSQL connector for the form0 ecosystem that stores form submissi
 
 ### Dependencies
 
-- **form0-core**: Local dependency (`file:../form0-core`) for record validation and version checking
+- **form0-core**: Dependency for record validation and version checking
 - **pg**: PostgreSQL client with connection pooling
 - **dotenv**: Environment variable management
 
