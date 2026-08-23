@@ -1,7 +1,7 @@
 {
   "name": "form0-connector-pg",
   "version": "0.1.0",
-  "description": "PostgreSQL connector for form0 ecosystem.",
+  "description": "PostgreSQL connector for form0, the open-source schema-driven form ecosystem by paqu.io. Opt-in persistence for form submissions in your own database.",
   "type": "module",
   "main": "src/index.js",
   "engines": {
@@ -13,17 +13,14 @@
     "format:check": "prettier --check \"**/*.{js,jsx,json,md}\""
   },
   "keywords": [
-    "form",
-    "form-builder",
-    "form-generator",
-    "form-engine",
-    "schema",
-    "json-schema",
-    "react",
-    "react-native",
-    "dynamic-forms",
+    "form0",
+    "paqu-io",
     "postgresql",
+    "postgres",
     "connector",
+    "form-submissions",
+    "schema-driven-forms",
+    "json-schema",
     "database"
   ],
   "author": "paqu.io <hello@paqu.io> (https://paqu.io/)",
@@ -34,9 +31,9 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "pg": "^8.12.0",
     "dotenv": "^16.4.5",
-    "form0-core": "^0.1.0-0"
+    "form0-core": "^0.1.26",
+    "pg": "^8.12.0"
   },
   "devDependencies": {
     "prettier": "^3.5.3"
