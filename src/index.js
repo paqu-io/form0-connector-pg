@@ -5,10 +5,14 @@
  */
 
 import path from 'path';
+import { createRequire } from 'node:module';
 import { PostgreSQLDatabase } from './database.js';
 import { createSchema } from './schema.js';
 import { recordVersion } from 'form0-core';
 import dotenv from 'dotenv';
+
+const require = createRequire(import.meta.url);
+const { version: PACKAGE_VERSION } = require('../package.json');
 
 // Load environment variables
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
@@ -42,6 +46,7 @@ export class Form0PostgreSQLConnector {
         idleTimeout: parseInt(env.FORM0_CONNECTOR_PG_IDLE_TIMEOUT) || 30000,
         connectionTimeout: parseInt(env.FORM0_CONNECTOR_PG_CONNECTION_TIMEOUT) || 5000,
         tableName: env.FORM0_CONNECTOR_PG_TABLE_NAME || 'form0_submissions',
+        childTableName: env.FORM0_CONNECTOR_PG_CHILD_TABLE_NAME || 'form0_submissions_children',
         schema: env.FORM0_CONNECTOR_PG_SCHEMA || 'public',
         debug: env.FORM0_CONNECTOR_PG_DEBUG === 'true',
         ...config, // Allow config to override environment variables
@@ -56,6 +61,16 @@ export class Form0PostgreSQLConnector {
       }
       if (!this.config.password) {
         throw new Error('FORM0_CONNECTOR_PG_PASSWORD environment variable is required');
+      }
+
+      for (const [name, value] of [
+        ['schema', this.config.schema],
+        ['tableName', this.config.tableName],
+        ['childTableName', this.config.childTableName],
+      ]) {
+        if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
+          throw new Error(`${name} must be a valid unquoted PostgreSQL identifier`);
+        }
       }
 
       // Initialize database connection
@@ -253,7 +268,7 @@ export class Form0PostgreSQLConnector {
   getMetadata() {
     return {
       name: 'form0-connector-pg',
-      version: '0.0.1-alpha.15',
+      version: PACKAGE_VERSION,
       description: 'PostgreSQL connector for form0',
       type: 'database',
       database: 'postgresql',
@@ -264,6 +279,7 @@ export class Form0PostgreSQLConnector {
         database: this.config.database,
         schema: this.config.schema,
         tableName: this.config.tableName,
+        childTableName: this.config.childTableName,
         // Don't expose sensitive information
         username: this.config.username ? '***' : null,
       },

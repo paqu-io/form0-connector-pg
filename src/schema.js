@@ -10,8 +10,8 @@
  * @param {Object} config - Connector configuration
  */
 export async function createSchema(db, config) {
-  const mainTableName = 'form0_submissions';
-  const childTableName = 'form0_submissions_children';
+  const mainTableName = config.tableName;
+  const childTableName = config.childTableName;
   const schemaName = config.schema;
 
   try {
@@ -262,8 +262,8 @@ export async function createSchema(db, config) {
  * @returns {Promise<Object>} Table information
  */
 export async function getTableInfo(db, config) {
-  const mainTableName = 'form0_submissions';
-  const childTableName = 'form0_submissions_children';
+  const mainTableName = config.tableName;
+  const childTableName = config.childTableName;
   const schemaName = config.schema;
 
   try {

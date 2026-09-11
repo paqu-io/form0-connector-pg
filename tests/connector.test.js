@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
 
 import { Form0PostgreSQLConnector } from '../src/index.js';
+
+const require = createRequire(import.meta.url);
+const { version: packageVersion } = require('../package.json');
 
 test('creates a connector instance', () => {
   const connector = new Form0PostgreSQLConnector();
@@ -14,7 +18,22 @@ test('getMetadata reflects initialization state', () => {
   const metadata = connector.getMetadata();
   assert.equal(metadata.name, 'form0-connector-pg');
   assert.equal(metadata.database, 'postgresql');
+  assert.equal(metadata.version, packageVersion);
   assert.equal(metadata.initialized, false);
+});
+
+test('rejects unsafe PostgreSQL identifiers before connecting', async () => {
+  const connector = new Form0PostgreSQLConnector();
+
+  await assert.rejects(
+    connector.initialize({
+      database: 'form0',
+      username: 'form0',
+      password: 'secret',
+      schema: 'public; DROP SCHEMA public',
+    }),
+    /schema must be a valid unquoted PostgreSQL identifier/
+  );
 });
 
 test('healthCheck reports not initialized when connector is idle', async () => {

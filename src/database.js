@@ -88,8 +88,8 @@ export class PostgreSQLDatabase {
     const client = await this.pool.connect();
 
     try {
-      const mainTableName = `${this.config.schema}.form0_submissions`;
-      const childTableName = `${this.config.schema}.form0_submissions_children`;
+      const mainTableName = `${this.config.schema}.${this.config.tableName}`;
+      const childTableName = `${this.config.schema}.${this.config.childTableName}`;
 
       // Determine if this is a main record or child record
       const isChildRecord = options.isChildRecord || false;

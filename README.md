@@ -88,8 +88,11 @@ connections, and keep credentials outside source control.
 
 ## 📚 Documentation
 
-- [Quickstart](https://docs.form0.dev/getting-started/quickstart)
-- [Full documentation](https://docs.form0.dev)
+- [Connectors overview](https://docs.form0.dev/connectors/overview)
+- [PostgreSQL setup and configuration](https://docs.form0.dev/connectors/postgresql/setup)
+- [PostgreSQL storage model and operations](https://docs.form0.dev/connectors/postgresql/storage)
+- [Direct integration](https://docs.form0.dev/connectors/direct-integration)
+- [CLI connector management](https://docs.form0.dev/cli/connector-management)
 - [Direct usage example](./examples/basic-usage.js)
 
 ## 🔒 Security
