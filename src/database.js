@@ -23,12 +23,14 @@ export class PostgreSQLDatabase {
         database: this.config.database,
         user: this.config.username,
         password: this.config.password,
-        ssl: this.config.ssl ? {
-          rejectUnauthorized: this.config.sslRejectUnauthorized
-        } : false,
+        ssl: this.config.ssl
+          ? {
+              rejectUnauthorized: this.config.sslRejectUnauthorized,
+            }
+          : false,
         max: this.config.maxConnections,
         idleTimeoutMillis: this.config.idleTimeout,
-        connectionTimeoutMillis: this.config.connectionTimeout
+        connectionTimeoutMillis: this.config.connectionTimeout,
       });
 
       // Test the connection
@@ -50,7 +52,7 @@ export class PostgreSQLDatabase {
     if (this.pool) {
       await this.pool.end();
       this.pool = null;
-      
+
       if (this.config.debug) {
         console.log('[form0-connector-pg] Database disconnected');
       }
@@ -63,11 +65,11 @@ export class PostgreSQLDatabase {
   async healthCheck() {
     try {
       if (!this.pool) return false;
-      
+
       const client = await this.pool.connect();
       const result = await client.query('SELECT 1 as health');
       client.release();
-      
+
       return result.rows.length > 0 && result.rows[0].health === 1;
     } catch (error) {
       console.error('[form0-connector-pg] Health check failed:', error.message);
@@ -84,16 +86,16 @@ export class PostgreSQLDatabase {
    */
   async insertRecord(record, options = {}) {
     const client = await this.pool.connect();
-    
+
     try {
       const mainTableName = `${this.config.schema}.form0_submissions`;
       const childTableName = `${this.config.schema}.form0_submissions_children`;
-      
+
       // Determine if this is a main record or child record
       const isChildRecord = options.isChildRecord || false;
       const parentRecordId = options.parentRecordId || null;
       const mainRecordId = options.mainRecordId || record.id;
-      
+
       if (isChildRecord) {
         // Insert child record
         const {
@@ -201,11 +203,11 @@ export class PostgreSQLDatabase {
           updated_duration,
           updated_duration_cumulative,
           geometry,
-          JSON.stringify(recordData)
+          JSON.stringify(recordData),
         ];
 
         const result = await client.query(query, values);
-        
+
         if (this.config.debug) {
           console.log('[form0-connector-pg] Child record inserted:', result.rows[0]);
         }
@@ -213,7 +215,7 @@ export class PostgreSQLDatabase {
         return {
           ...result.rows[0],
           recordType: 'child',
-          childRecordId: result.rows[0]._child_record_id
+          childRecordId: result.rows[0]._child_record_id,
         };
       } else {
         // Insert main record
@@ -315,11 +317,11 @@ export class PostgreSQLDatabase {
           created_duration,
           updated_duration,
           updated_duration_cumulative,
-          JSON.stringify(recordData)
+          JSON.stringify(recordData),
         ];
 
         const result = await client.query(query, values);
-        
+
         if (this.config.debug) {
           console.log('[form0-connector-pg] Main record inserted:', result.rows[0]);
         }
@@ -327,7 +329,7 @@ export class PostgreSQLDatabase {
         return {
           ...result.rows[0],
           recordType: 'main',
-          recordId: result.rows[0]._record_id
+          recordId: result.rows[0]._record_id,
         };
       }
     } catch (error) {
@@ -346,16 +348,16 @@ export class PostgreSQLDatabase {
    */
   async insertChildRecords(childRecords, mainRecordId, parentRecordId = null) {
     const results = [];
-    
+
     for (const childRecord of childRecords) {
       const result = await this.insertRecord(childRecord, {
         isChildRecord: true,
         mainRecordId,
-        parentRecordId: parentRecordId || mainRecordId
+        parentRecordId: parentRecordId || mainRecordId,
       });
       results.push(result);
     }
-    
+
     return results;
   }
 
@@ -367,7 +369,7 @@ export class PostgreSQLDatabase {
    */
   async query(query, values = []) {
     const client = await this.pool.connect();
-    
+
     try {
       const result = await client.query(query, values);
       return result;
@@ -392,7 +394,7 @@ export class PostgreSQLDatabase {
           AND table_name = $2
         )
       `;
-      
+
       const result = await this.query(query, [this.config.schema, tableName]);
       return result.rows[0].exists;
     } catch (error) {

@@ -1,16 +1,29 @@
 {
   "name": "form0-connector-pg",
   "version": "0.1.1",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "description": "PostgreSQL connector for form0, the open-source schema-driven form ecosystem by paqu.io. Opt-in persistence for form submissions in your own database.",
   "type": "module",
   "main": "src/index.js",
+  "files": [
+    "src",
+    "examples",
+    ".env.example",
+    "SECURITY.md"
+  ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "test": "node --test",
-    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{js,jsx,json,md}\""
+    "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\" \"examples/**/*.js\" \"scripts/**/*.mjs\" package.json README.md SECURITY.md SUPPORT.md CONTRIBUTING.md .github/workflows/ci.yml .github/workflows/publish.yml",
+    "format:check": "prettier --check \"src/**/*.js\" \"tests/**/*.js\" \"examples/**/*.js\" \"scripts/**/*.mjs\" package.json README.md SECURITY.md SUPPORT.md CONTRIBUTING.md .github/workflows/ci.yml .github/workflows/publish.yml",
+    "package:check": "node scripts/check-package-contents.mjs",
+    "security:audit:prod": "npm audit --omit=dev --omit=peer --audit-level=high",
+    "check": "npm run format:check && npm test",
+    "release:check": "npm run check && npm run security:audit:prod && npm run package:check"
   },
   "keywords": [
     "form0",
@@ -32,7 +45,7 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.4.5",
-    "form0-core": "^0.1.26",
+    "form0-core": "^0.2.1",
     "pg": "^8.12.0"
   },
   "devDependencies": {
