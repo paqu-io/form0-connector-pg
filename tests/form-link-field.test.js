@@ -47,7 +47,11 @@ test('FormLinkField values are preserved when submitting to PostgreSQL connector
   const result = await connector.onFormSubmit(structuredRecord);
 
   assert.equal(result.success, true, 'Submission should succeed');
-  assert.equal(connector.db.insertCalls.length, 1, 'Only main record should be inserted for FormLinkField');
+  assert.equal(
+    connector.db.insertCalls.length,
+    1,
+    'Only main record should be inserted for FormLinkField'
+  );
 
   const storedRecord = connector.db.insertCalls[0].record;
   assert.ok(storedRecord.form_values, 'Stored record should include form_values');

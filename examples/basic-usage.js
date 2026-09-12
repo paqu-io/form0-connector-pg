@@ -43,7 +43,7 @@ const exampleRecord = {
     message: 'Hello, this is a test form submission!',
     subscribe_newsletter: true,
     contact_preferences: ['email', 'phone'],
-    
+
     // RepeatableSection with child records
     attendees: [
       {
@@ -113,8 +113,8 @@ const exampleRecord = {
               form_values: {
                 relative_name: 'Bob Smith',
                 relative_email: 'bob@example.com',
-                relative_relationship: 'brother'
-              }
+                relative_relationship: 'brother',
+              },
             },
             {
               id: randomUUID(), // Child record ID
@@ -148,11 +148,11 @@ const exampleRecord = {
               form_values: {
                 relative_name: 'Charlie Brown',
                 relative_email: 'charlie@example.com',
-                relative_relationship: 'sister'
-              }
-            }            
-          ]
-        }
+                relative_relationship: 'sister',
+              },
+            },
+          ],
+        },
       },
       {
         id: randomUUID(), // Child record ID
@@ -186,11 +186,11 @@ const exampleRecord = {
         form_values: {
           attendee_name: 'Bob Smith',
           attendee_email: 'bob@example.com',
-          dietary_restrictions: 'none'
-        }
-      }
+          dietary_restrictions: 'none',
+        },
+      },
     ],
-    
+
     // Another RepeatableSection
     activities: [
       {
@@ -260,8 +260,8 @@ const exampleRecord = {
               form_values: {
                 participant_name: 'Alice Johnson',
                 participant_role: 'attendee',
-                participant_notes: 'First time user'
-              }
+                participant_notes: 'First time user',
+              },
             },
             {
               id: randomUUID(), // Nested child record ID
@@ -295,59 +295,58 @@ const exampleRecord = {
               form_values: {
                 participant_name: 'Bob Smith',
                 participant_role: 'instructor',
-                participant_notes: 'Experienced user'
-              }
-            }
-          ]
-        }
-      }
-    ]
-  }
+                participant_notes: 'Experienced user',
+              },
+            },
+          ],
+        },
+      },
+    ],
+  },
 };
 
 async function runExample() {
   const connector = new Form0PostgreSQLConnector();
-  
+
   try {
     console.log('🔌 Initializing PostgreSQL connector...');
-    
+
     // Initialize with environment variables
     await connector.initialize();
-    
+
     console.log('✅ Connector initialized successfully');
-    
+
     // Check health
     console.log('🏥 Checking database health...');
     const health = await connector.healthCheck();
-    console.log('Health check result:', health);
-    
+    console.log(
+      health.healthy ? '✅ Database connection healthy' : '❌ Database connection unhealthy'
+    );
+
     if (!health.healthy) {
       throw new Error('Database is not healthy');
     }
-    
-    // Get connector metadata
-    console.log('📋 Connector metadata:');
-    console.log(JSON.stringify(connector.getMetadata(), null, 2));
-    
+
     // Submit the example record with RepeatableSections
     console.log('💾 Submitting example record with RepeatableSections...');
     const result = await connector.onFormSubmit(exampleRecord);
-    
+
     if (result.success) {
       console.log('✅ Record submitted successfully:', result);
       console.log(`📊 Summary: Main record + ${result.childRecords.length} child records`);
-      
+
       // Show child record details
       if (result.childRecords.length > 0) {
         console.log('👥 Child records processed:');
         result.childRecords.forEach((child, index) => {
-          console.log(`  ${index + 1}. ${child.sectionKey} (index ${child.childIndex}): ${child.childRecordId}`);
+          console.log(
+            `  ${index + 1}. ${child.sectionKey} (index ${child.childIndex}): ${child.childRecordId}`
+          );
         });
       }
     } else {
       console.error('❌ Failed to submit record:', result);
     }
-    
   } catch (error) {
     console.error('❌ Example failed:', error.message);
   } finally {

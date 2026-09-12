@@ -5,10 +5,31 @@
  */
 
 import path from 'path';
+import { createRequire } from 'node:module';
 import { PostgreSQLDatabase } from './database.js';
 import { createSchema } from './schema.js';
 import { recordVersion } from 'form0-core';
 import dotenv from 'dotenv';
+
+const require = createRequire(import.meta.url);
+const { version: PACKAGE_VERSION } = require('../package.json');
+
+const POSTGRESQL_IDENTIFIER_PATTERN = /^[a-z_][a-z0-9_]*$/;
+const MAX_SCHEMA_NAME_LENGTH = 63;
+// Generated trigger names add 22 characters to the configured table name.
+const MAX_TABLE_NAME_LENGTH = 41;
+
+function assertValidIdentifier(name, value, maxLength) {
+  if (typeof value !== 'string' || !POSTGRESQL_IDENTIFIER_PATTERN.test(value)) {
+    throw new Error(
+      `${name} must be a lowercase unquoted PostgreSQL identifier containing only letters, digits, and underscores`
+    );
+  }
+
+  if (value.length > maxLength) {
+    throw new Error(`${name} must not exceed ${maxLength} characters`);
+  }
+}
 
 // Load environment variables
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
@@ -29,7 +50,7 @@ export class Form0PostgreSQLConnector {
     try {
       // Merge environment variables with any overrides
       const env = { ...process.env, ...envVars };
-      
+
       this.config = {
         host: env.FORM0_CONNECTOR_PG_HOST || 'localhost',
         port: parseInt(env.FORM0_CONNECTOR_PG_PORT) || 5432,
@@ -42,9 +63,10 @@ export class Form0PostgreSQLConnector {
         idleTimeout: parseInt(env.FORM0_CONNECTOR_PG_IDLE_TIMEOUT) || 30000,
         connectionTimeout: parseInt(env.FORM0_CONNECTOR_PG_CONNECTION_TIMEOUT) || 5000,
         tableName: env.FORM0_CONNECTOR_PG_TABLE_NAME || 'form0_submissions',
+        childTableName: env.FORM0_CONNECTOR_PG_CHILD_TABLE_NAME || 'form0_submissions_children',
         schema: env.FORM0_CONNECTOR_PG_SCHEMA || 'public',
         debug: env.FORM0_CONNECTOR_PG_DEBUG === 'true',
-        ...config // Allow config to override environment variables
+        ...config, // Allow config to override environment variables
       };
 
       // Validate required configuration
@@ -58,6 +80,18 @@ export class Form0PostgreSQLConnector {
         throw new Error('FORM0_CONNECTOR_PG_PASSWORD environment variable is required');
       }
 
+      for (const [name, value, maxLength] of [
+        ['schema', this.config.schema, MAX_SCHEMA_NAME_LENGTH],
+        ['tableName', this.config.tableName, MAX_TABLE_NAME_LENGTH],
+        ['childTableName', this.config.childTableName, MAX_TABLE_NAME_LENGTH],
+      ]) {
+        assertValidIdentifier(name, value, maxLength);
+      }
+
+      if (this.config.tableName === this.config.childTableName) {
+        throw new Error('tableName and childTableName must be different');
+      }
+
       // Initialize database connection
       this.db = new PostgreSQLDatabase(this.config);
       await this.db.connect();
@@ -66,7 +100,7 @@ export class Form0PostgreSQLConnector {
       await createSchema(this.db, this.config);
 
       this.isInitialized = true;
-      
+
       if (this.config.debug) {
         console.log('[form0-connector-pg] Initialized successfully');
       }
@@ -99,12 +133,12 @@ export class Form0PostgreSQLConnector {
         updated_at: serverTimestamp, // Server update time is canonical
         updated_at_server: serverTimestamp,
         // Only set server created_at if it's not already set (for new records)
-        created_at_server: structuredRecord.created_at_server || serverTimestamp
+        created_at_server: structuredRecord.created_at_server || serverTimestamp,
       };
 
       // Insert main record first
       const mainResult = await this.db.insertRecord(recordWithServerTimestamps);
-      
+
       if (this.config.debug) {
         console.log('[form0-connector-pg] Main record inserted successfully:', mainResult.recordId);
       }
@@ -114,17 +148,24 @@ export class Form0PostgreSQLConnector {
       const processedChildRecords = [];
 
       // Recursive function to process RepeatableSections at any nesting level
-      const processRepeatableSections = async (formValues, mainRecordId, parentRecordId, sectionPath = '') => {
+      const processRepeatableSections = async (
+        formValues,
+        mainRecordId,
+        parentRecordId,
+        sectionPath = ''
+      ) => {
         const results = [];
-        
+
         for (const [key, value] of Object.entries(formValues)) {
           if (Array.isArray(value) && value.length > 0 && value[0].id) {
             // This is a RepeatableSection with child records
             const childRecords = value;
             const currentSectionPath = sectionPath ? `${sectionPath}.${key}` : key;
-            
+
             if (this.config.debug) {
-              console.log(`[form0-connector-pg] Processing RepeatableSection "${currentSectionPath}" with ${childRecords.length} child records`);
+              console.log(
+                `[form0-connector-pg] Processing RepeatableSection "${currentSectionPath}" with ${childRecords.length} child records`
+              );
             }
 
             // Process each child record in this RepeatableSection
@@ -143,18 +184,21 @@ export class Form0PostgreSQLConnector {
               const childResult = await this.db.insertRecord(childWithServerTimestamps, {
                 isChildRecord: true,
                 mainRecordId: mainRecordId,
-                parentRecordId: parentRecordId
+                parentRecordId: parentRecordId,
               });
 
               results.push({
                 sectionKey: currentSectionPath,
                 childIndex: i,
                 childRecordId: childResult.childRecordId,
-                parentRecordId: parentRecordId
+                parentRecordId: parentRecordId,
               });
 
               if (this.config.debug) {
-                console.log(`[form0-connector-pg] Child record ${i + 1} inserted:`, childResult.childRecordId);
+                console.log(
+                  `[form0-connector-pg] Child record ${i + 1} inserted:`,
+                  childResult.childRecordId
+                );
               }
 
               // Recursively process nested RepeatableSections within this child record
@@ -170,7 +214,7 @@ export class Form0PostgreSQLConnector {
             }
           }
         }
-        
+
         return results;
       };
 
@@ -192,16 +236,16 @@ export class Form0PostgreSQLConnector {
         timestamp: serverTimestamp,
         serverTimestamps: {
           created_at_server: recordWithServerTimestamps.created_at_server,
-          updated_at_server: serverTimestamp
-        }
+          updated_at_server: serverTimestamp,
+        },
       };
     } catch (error) {
       console.error('[form0-connector-pg] Failed to store record:', error.message);
-      
+
       return {
         success: false,
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
@@ -215,23 +259,23 @@ export class Form0PostgreSQLConnector {
       if (!this.isInitialized) {
         return {
           healthy: false,
-          message: 'Connector not initialized'
+          message: 'Connector not initialized',
         };
       }
 
       const isConnected = await this.db.healthCheck();
-      
+
       return {
         healthy: isConnected,
         message: isConnected ? 'PostgreSQL connection healthy' : 'PostgreSQL connection failed',
         database: this.config.database,
         host: this.config.host,
-        port: this.config.port
+        port: this.config.port,
       };
     } catch (error) {
       return {
         healthy: false,
-        message: `Health check failed: ${error.message}`
+        message: `Health check failed: ${error.message}`,
       };
     }
   }
@@ -243,7 +287,7 @@ export class Form0PostgreSQLConnector {
   getMetadata() {
     return {
       name: 'form0-connector-pg',
-      version: '0.0.1-alpha.15',
+      version: PACKAGE_VERSION,
       description: 'PostgreSQL connector for form0',
       type: 'database',
       database: 'postgresql',
@@ -254,9 +298,10 @@ export class Form0PostgreSQLConnector {
         database: this.config.database,
         schema: this.config.schema,
         tableName: this.config.tableName,
+        childTableName: this.config.childTableName,
         // Don't expose sensitive information
-        username: this.config.username ? '***' : null
-      }
+        username: this.config.username ? '***' : null,
+      },
     };
   }
 
@@ -269,7 +314,7 @@ export class Form0PostgreSQLConnector {
       this.db = null;
     }
     this.isInitialized = false;
-    
+
     if (this.config.debug) {
       console.log('[form0-connector-pg] Connector destroyed');
     }

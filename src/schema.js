@@ -10,14 +10,14 @@
  * @param {Object} config - Connector configuration
  */
 export async function createSchema(db, config) {
-  const mainTableName = 'form0_submissions';
-  const childTableName = 'form0_submissions_children';
+  const mainTableName = config.tableName;
+  const childTableName = config.childTableName;
   const schemaName = config.schema;
-  
+
   try {
     // Check if main table already exists
     const mainExists = await db.tableExists(mainTableName);
-    
+
     if (!mainExists) {
       // Create main records table
       const createMainTableQuery = `
@@ -86,9 +86,9 @@ export async function createSchema(db, config) {
         `CREATE INDEX idx_${mainTableName}_version ON ${schemaName}.${mainTableName} (_version)`,
         `CREATE INDEX idx_${mainTableName}_changeset_id ON ${schemaName}.${mainTableName} (_changeset_id)`,
         `CREATE INDEX idx_${mainTableName}_created_by_id ON ${schemaName}.${mainTableName} (_created_by_id)`,
-        
+
         // JSONB indexes for form_values queries
-        `CREATE INDEX idx_${mainTableName}_form_values ON ${schemaName}.${mainTableName} USING GIN (form_values)`
+        `CREATE INDEX idx_${mainTableName}_form_values ON ${schemaName}.${mainTableName} USING GIN (form_values)`,
       ];
 
       for (const indexQuery of mainIndexes) {
@@ -116,16 +116,22 @@ export async function createSchema(db, config) {
       await db.query(mainTriggerFunction);
       await db.query(mainTrigger);
 
-      console.log(`[form0-connector-pg] Created main table ${schemaName}.${mainTableName} with indexes and triggers`);
+      if (config.debug) {
+        console.log(
+          `[form0-connector-pg] Created main table ${schemaName}.${mainTableName} with indexes and triggers`
+        );
+      }
     } else {
       if (config.debug) {
-        console.log(`[form0-connector-pg] Main table ${schemaName}.${mainTableName} already exists`);
+        console.log(
+          `[form0-connector-pg] Main table ${schemaName}.${mainTableName} already exists`
+        );
       }
     }
 
     // Check if child table already exists
     const childExists = await db.tableExists(childTableName);
-    
+
     if (!childExists) {
       // Create child records table
       const createChildTableQuery = `
@@ -206,9 +212,9 @@ export async function createSchema(db, config) {
         `CREATE INDEX idx_${childTableName}_version ON ${schemaName}.${childTableName} (_version)`,
         `CREATE INDEX idx_${childTableName}_changeset_id ON ${schemaName}.${childTableName} (_changeset_id)`,
         `CREATE INDEX idx_${childTableName}_created_by_id ON ${schemaName}.${childTableName} (_created_by_id)`,
-        
+
         // JSONB indexes for form_values queries
-        `CREATE INDEX idx_${childTableName}_form_values ON ${schemaName}.${childTableName} USING GIN (form_values)`
+        `CREATE INDEX idx_${childTableName}_form_values ON ${schemaName}.${childTableName} USING GIN (form_values)`,
       ];
 
       for (const indexQuery of childIndexes) {
@@ -236,13 +242,18 @@ export async function createSchema(db, config) {
       await db.query(childTriggerFunction);
       await db.query(childTrigger);
 
-      console.log(`[form0-connector-pg] Created child table ${schemaName}.${childTableName} with indexes and triggers`);
+      if (config.debug) {
+        console.log(
+          `[form0-connector-pg] Created child table ${schemaName}.${childTableName} with indexes and triggers`
+        );
+      }
     } else {
       if (config.debug) {
-        console.log(`[form0-connector-pg] Child table ${schemaName}.${childTableName} already exists`);
+        console.log(
+          `[form0-connector-pg] Child table ${schemaName}.${childTableName} already exists`
+        );
       }
     }
-
   } catch (error) {
     throw new Error(`Failed to create schema: ${error.message}`);
   }
@@ -255,10 +266,10 @@ export async function createSchema(db, config) {
  * @returns {Promise<Object>} Table information
  */
 export async function getTableInfo(db, config) {
-  const mainTableName = 'form0_submissions';
-  const childTableName = 'form0_submissions_children';
+  const mainTableName = config.tableName;
+  const childTableName = config.childTableName;
   const schemaName = config.schema;
-  
+
   try {
     // Get main table info
     const mainTableInfoQuery = `
@@ -273,29 +284,29 @@ export async function getTableInfo(db, config) {
       FROM pg_tables 
       WHERE schemaname = $1 AND tablename = $2
     `;
-    
+
     const mainTableInfo = await db.query(mainTableInfoQuery, [schemaName, mainTableName]);
     const childTableInfo = await db.query(mainTableInfoQuery, [schemaName, childTableName]);
-    
+
     const result = {
       mainTable: { exists: mainTableInfo.rows.length > 0 },
-      childTable: { exists: childTableInfo.rows.length > 0 }
+      childTable: { exists: childTableInfo.rows.length > 0 },
     };
-    
+
     if (mainTableInfo.rows.length > 0) {
       // Get main table row count
       const mainCountQuery = `SELECT COUNT(*) as row_count FROM ${schemaName}.${mainTableName}`;
       const mainCountResult = await db.query(mainCountQuery);
       result.mainTable.rowCount = parseInt(mainCountResult.rows[0].row_count);
     }
-    
+
     if (childTableInfo.rows.length > 0) {
       // Get child table row count
       const childCountQuery = `SELECT COUNT(*) as row_count FROM ${schemaName}.${childTableName}`;
       const childCountResult = await db.query(childCountQuery);
       result.childTable.rowCount = parseInt(childCountResult.rows[0].row_count);
     }
-    
+
     return result;
   } catch (error) {
     throw new Error(`Failed to get table info: ${error.message}`);
