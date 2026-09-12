@@ -14,6 +14,23 @@ import dotenv from 'dotenv';
 const require = createRequire(import.meta.url);
 const { version: PACKAGE_VERSION } = require('../package.json');
 
+const POSTGRESQL_IDENTIFIER_PATTERN = /^[a-z_][a-z0-9_]*$/;
+const MAX_SCHEMA_NAME_LENGTH = 63;
+// Generated trigger names add 22 characters to the configured table name.
+const MAX_TABLE_NAME_LENGTH = 41;
+
+function assertValidIdentifier(name, value, maxLength) {
+  if (typeof value !== 'string' || !POSTGRESQL_IDENTIFIER_PATTERN.test(value)) {
+    throw new Error(
+      `${name} must be a lowercase unquoted PostgreSQL identifier containing only letters, digits, and underscores`
+    );
+  }
+
+  if (value.length > maxLength) {
+    throw new Error(`${name} must not exceed ${maxLength} characters`);
+  }
+}
+
 // Load environment variables
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
@@ -63,14 +80,16 @@ export class Form0PostgreSQLConnector {
         throw new Error('FORM0_CONNECTOR_PG_PASSWORD environment variable is required');
       }
 
-      for (const [name, value] of [
-        ['schema', this.config.schema],
-        ['tableName', this.config.tableName],
-        ['childTableName', this.config.childTableName],
+      for (const [name, value, maxLength] of [
+        ['schema', this.config.schema, MAX_SCHEMA_NAME_LENGTH],
+        ['tableName', this.config.tableName, MAX_TABLE_NAME_LENGTH],
+        ['childTableName', this.config.childTableName, MAX_TABLE_NAME_LENGTH],
       ]) {
-        if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
-          throw new Error(`${name} must be a valid unquoted PostgreSQL identifier`);
-        }
+        assertValidIdentifier(name, value, maxLength);
+      }
+
+      if (this.config.tableName === this.config.childTableName) {
+        throw new Error('tableName and childTableName must be different');
       }
 
       // Initialize database connection

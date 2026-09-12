@@ -116,9 +116,11 @@ export async function createSchema(db, config) {
       await db.query(mainTriggerFunction);
       await db.query(mainTrigger);
 
-      console.log(
-        `[form0-connector-pg] Created main table ${schemaName}.${mainTableName} with indexes and triggers`
-      );
+      if (config.debug) {
+        console.log(
+          `[form0-connector-pg] Created main table ${schemaName}.${mainTableName} with indexes and triggers`
+        );
+      }
     } else {
       if (config.debug) {
         console.log(
@@ -240,9 +242,11 @@ export async function createSchema(db, config) {
       await db.query(childTriggerFunction);
       await db.query(childTrigger);
 
-      console.log(
-        `[form0-connector-pg] Created child table ${schemaName}.${childTableName} with indexes and triggers`
-      );
+      if (config.debug) {
+        console.log(
+          `[form0-connector-pg] Created child table ${schemaName}.${childTableName} with indexes and triggers`
+        );
+      }
     } else {
       if (config.debug) {
         console.log(

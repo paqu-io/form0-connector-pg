@@ -32,9 +32,9 @@ This connector is designed to be installed and managed through `form0-cli`:
 
 This is a PostgreSQL connector for the form0 ecosystem that stores form submissions in a hybrid approach:
 - **Hybrid Storage**: Common fields in dedicated columns + complete record as JSONB
-- **Dual Table Architecture**: 
-  - `form0_submissions` (main records)
-  - `form0_submissions_children` (child records from RepeatableSections)
+- **Dual Table Architecture**:
+  - `form0_submissions` by default (configurable main-record table)
+  - `form0_submissions_children` by default (configurable child-record table for RepeatableSections)
 
 ### Core Components
 
@@ -69,7 +69,7 @@ This is a PostgreSQL connector for the form0 ecosystem that stores form submissi
 
 ### Testing Strategy
 
-Uses Node.js built-in test runner (requires Node 18+). Tests are split into:
+Uses Node.js built-in test runner (requires Node 22+). Tests are split into:
 - Unit tests: Basic functionality without database
 - Integration tests: Full database workflow (conditionally skipped)
 

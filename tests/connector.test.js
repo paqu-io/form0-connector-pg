@@ -32,7 +32,50 @@ test('rejects unsafe PostgreSQL identifiers before connecting', async () => {
       password: 'secret',
       schema: 'public; DROP SCHEMA public',
     }),
-    /schema must be a valid unquoted PostgreSQL identifier/
+    /schema must be a lowercase unquoted PostgreSQL identifier/
+  );
+});
+
+test('rejects mixed-case PostgreSQL identifiers before connecting', async () => {
+  const connector = new Form0PostgreSQLConnector();
+
+  await assert.rejects(
+    connector.initialize({
+      database: 'form0',
+      username: 'form0',
+      password: 'secret',
+      tableName: 'FormSubmissions',
+    }),
+    /tableName must be a lowercase unquoted PostgreSQL identifier/
+  );
+});
+
+test('rejects table names that cannot produce safe generated identifiers', async () => {
+  const connector = new Form0PostgreSQLConnector();
+
+  await assert.rejects(
+    connector.initialize({
+      database: 'form0',
+      username: 'form0',
+      password: 'secret',
+      childTableName: 'a'.repeat(42),
+    }),
+    /childTableName must not exceed 41 characters/
+  );
+});
+
+test('rejects identical main and child table names', async () => {
+  const connector = new Form0PostgreSQLConnector();
+
+  await assert.rejects(
+    connector.initialize({
+      database: 'form0',
+      username: 'form0',
+      password: 'secret',
+      tableName: 'submissions',
+      childTableName: 'submissions',
+    }),
+    /tableName and childTableName must be different/
   );
 });
 
@@ -49,8 +92,8 @@ test('destroy without initialization is a no-op', async () => {
   assert.equal(connector.isInitialized, false);
 });
 
-// Integration-oriented tests require a live PostgreSQL instance. Skip by default.
-test.skip('initializes and stores a record with a live PostgreSQL database', async (t) => {
+// Integration-oriented test runs only when a live PostgreSQL instance is configured.
+test('initializes with a live PostgreSQL database', async (t) => {
   if (
     !process.env.FORM0_CONNECTOR_PG_DATABASE ||
     !process.env.FORM0_CONNECTOR_PG_USERNAME ||

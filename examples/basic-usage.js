@@ -319,15 +319,13 @@ async function runExample() {
     // Check health
     console.log('🏥 Checking database health...');
     const health = await connector.healthCheck();
-    console.log('Health check result:', health);
+    console.log(
+      health.healthy ? '✅ Database connection healthy' : '❌ Database connection unhealthy'
+    );
 
     if (!health.healthy) {
       throw new Error('Database is not healthy');
     }
-
-    // Get connector metadata
-    console.log('📋 Connector metadata:');
-    console.log(JSON.stringify(connector.getMetadata(), null, 2));
 
     // Submit the example record with RepeatableSections
     console.log('💾 Submitting example record with RepeatableSections...');

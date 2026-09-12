@@ -68,6 +68,13 @@ await connector.destroy();
 `initialize(config, envVars)` accepts explicit configuration overrides when environment variables
 are not appropriate for the host application.
 
+Schema and table names must be lowercase, unquoted PostgreSQL identifiers: they must start with a
+letter or underscore and contain only lowercase letters, digits, and underscores. Schema names may
+be up to 63 characters; table names may be up to 41 characters so the connector can safely derive
+its PostgreSQL index, trigger, and function names. The main and child table names must be different.
+Set `FORM0_CONNECTOR_PG_DEBUG=true` to include the configured schema and table names in lifecycle
+diagnostics.
+
 ## Storage behavior
 
 - The configured schema and tables are created when the connector initializes.
