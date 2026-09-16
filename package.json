@@ -36,7 +36,7 @@
     "json-schema",
     "database"
   ],
-  "author": "paqu.io <hello@paqu.io> (https://paqu.io/)",
+  "author": "paqu technologies <hello@paqu.io> (https://paqu.io/)",
   "contributors": [
     {
       "name": "aragornii"
@@ -45,7 +45,7 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.4.5",
-    "form0-core": "^0.2.1",
+    "form0-core": "^0.3.0",
     "pg": "^8.12.0"
   },
   "devDependencies": {
