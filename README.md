@@ -1,13 +1,27 @@
-# form0-connector-pg
+<p align="center">
+  <img
+    src=".github/assets/form0-icon.svg"
+    alt="form0 icon"
+    width="100"
+  />
+</p>
 
-[![NPM Version](https://img.shields.io/npm/v/form0-connector-pg)](https://www.npmjs.com/package/form0-connector-pg)
-[![NPM Downloads](https://img.shields.io/npm/dm/form0-connector-pg)](https://www.npmjs.com/package/form0-connector-pg)
-[![CI](https://github.com/paqu-io/form0-connector-pg/actions/workflows/ci.yml/badge.svg)](https://github.com/paqu-io/form0-connector-pg/actions/workflows/ci.yml)
-![NPM License](https://img.shields.io/npm/l/form0-connector-pg)
-[![Docs](https://img.shields.io/badge/docs-docs.form0.dev-2563eb)](https://docs.form0.dev)
-[![Website](https://img.shields.io/badge/site-form0.dev-0f172a)](https://form0.dev)
-![NPM Last Update](https://img.shields.io/npm/last-update/form0-connector-pg)
-[![Socket](https://socket.dev/api/badge/npm/package/form0-connector-pg)](https://socket.dev/npm/package/form0-connector-pg)
+<h1 align="center">form0-connector-pg</h1>
+
+<p align="center">
+  A PostgreSQL connector for storing form0 submissions in your own database.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/form0-connector-pg"><img alt="npm version" src="https://img.shields.io/npm/v/form0-connector-pg"></a>
+  <a href="https://www.npmjs.com/package/form0-connector-pg"><img alt="npm downloads" src="https://img.shields.io/npm/dm/form0-connector-pg"></a>
+  <a href="https://github.com/paqu-io/form0-connector-pg/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/paqu-io/form0-connector-pg/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="./LICENSE"><img alt="MIT License" src="https://img.shields.io/npm/l/form0-connector-pg"></a>
+  <a href="https://docs.form0.dev"><img alt="Documentation" src="https://img.shields.io/badge/docs-docs.form0.dev-2563eb"></a>
+  <a href="https://form0.dev"><img alt="Website" src="https://img.shields.io/badge/site-form0.dev-0f172a"></a>
+  <img alt="npm last update" src="https://img.shields.io/npm/last-update/form0-connector-pg">
+  <a href="https://socket.dev/npm/package/form0-connector-pg"><img alt="Socket" src="https://socket.dev/api/badge/npm/package/form0-connector-pg"></a>
+</p>
 
 > [!NOTE]
 > form0 is in active development and is available to use today. Its schema format and core
@@ -112,6 +126,10 @@ backups, retention, and regulatory requirements.
 
 See [SUPPORT.md](https://github.com/paqu-io/form0-connector-pg/blob/main/SUPPORT.md) for help and
 [CONTRIBUTING.md](https://github.com/paqu-io/form0-connector-pg/blob/main/CONTRIBUTING.md) to contribute.
+
+If you find form0 ecosystem useful, a ⭐ on GitHub or a mention
+in your project would be greatly appreciated.
+It helps others discover the project!
 
 ## 📄 License
 
